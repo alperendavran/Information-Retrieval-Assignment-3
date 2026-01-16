@@ -1,0 +1,889 @@
+﻿{
+  "k": 5,
+  "summary": {
+    "baseline": {
+      "recall_at_k": {
+        "mean": 0.5666666666666667,
+        "std": 0.39681269820951726,
+        "n": 14
+      },
+      "precision_at_k": {
+        "mean": 0.2857142857142857,
+        "std": 0.25872528966106906,
+        "n": 14
+      },
+      "f1_at_k": {
+        "mean": 0.3305813234384663,
+        "std": 0.2364546619848941,
+        "n": 14
+      },
+      "mrr": {
+        "mean": 0.6411064425770309,
+        "std": 0.3759162410779317,
+        "n": 14
+      },
+      "ndcg_at_k": {
+        "mean": 0.5618714077826922,
+        "std": 0.396631842279724,
+        "n": 14
+      },
+      "MAP": {
+        "mean": 0.5938502067493664,
+        "std": 0.35672422565706585,
+        "n": 14
+      }
+    },
+    "agentic": {
+      "recall_at_k": {
+        "mean": 0.4888888888888889,
+        "std": 0.4151453709393201,
+        "n": 14
+      },
+      "precision_at_k": {
+        "mean": 0.18571428571428572,
+        "std": 0.11866605518454394,
+        "n": 14
+      },
+      "f1_at_k": {
+        "mean": 0.23736858379715525,
+        "std": 0.14925560524181328,
+        "n": 14
+      },
+      "mrr": {
+        "mean": 0.6845238095238094,
+        "std": 0.4320707010466549,
+        "n": 14
+      },
+      "ndcg_at_k": {
+        "mean": 0.5214712179849667,
+        "std": 0.4065390948640245,
+        "n": 14
+      },
+      "MAP": {
+        "mean": 0.6666666666666666,
+        "std": 0.4237493269180402,
+        "n": 14
+      }
+    }
+  },
+  "per_question": [
+    {
+      "question": "What are the prerequisites for the Internet of Things course?",
+      "category": "course_single_hop",
+      "n_relevant": 1,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_8",
+            "chunk_0",
+            "chunk_1",
+            "chunk_2",
+            "chunk_4"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 0.3333333333333333,
+            "ndcg_at_k": 0.5,
+            "average_precision": 0.3333333333333333
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_1",
+            "chunk_8",
+            "chunk_115",
+            "chunk_0",
+            "chunk_3"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "What are the learning outcomes of the Internet of Things course?",
+      "category": "course_single_hop",
+      "n_relevant": 1,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_2",
+            "chunk_8",
+            "chunk_5",
+            "chunk_4",
+            "chunk_3"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_2",
+            "chunk_5",
+            "chunk_116",
+            "chunk_109",
+            "chunk_8"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "How is the Internet of Things course assessed (assessment method and criteria)?",
+      "category": "course_single_hop",
+      "n_relevant": 1,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_6",
+            "chunk_180",
+            "chunk_33",
+            "chunk_122",
+            "chunk_8"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_6",
+            "chunk_180",
+            "chunk_33",
+            "chunk_2",
+            "chunk_122"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "What is the exam period for the Internet of Things course?",
+      "category": "course_single_hop",
+      "n_relevant": 0,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_6",
+            "chunk_8",
+            "chunk_5",
+            "chunk_0",
+            "chunk_4"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_477",
+            "chunk_372",
+            "chunk_428",
+            "chunk_423",
+            "chunk_505"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        }
+      }
+    },
+    {
+      "question": "Who teaches Database Systems and in which semester is it offered?",
+      "category": "course_single_hop",
+      "n_relevant": 1,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_61",
+            "chunk_60",
+            "chunk_433",
+            "chunk_64",
+            "chunk_65"
+          ],
+          "metrics": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "f1_at_k": 0.0,
+            "mrr": 0.058823529411764705,
+            "ndcg_at_k": 0.0,
+            "average_precision": 0.058823529411764705
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_77",
+            "chunk_61",
+            "chunk_261",
+            "chunk_64",
+            "chunk_60"
+          ],
+          "metrics": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "f1_at_k": 0.0,
+            "mrr": 0.0,
+            "ndcg_at_k": 0.0,
+            "average_precision": 0.0
+          }
+        }
+      }
+    },
+    {
+      "question": "What are the prerequisites for Advanced Wireless and 5G Networks?",
+      "category": "course_single_hop",
+      "n_relevant": 1,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_34",
+            "chunk_123",
+            "chunk_124",
+            "chunk_117",
+            "chunk_121"
+          ],
+          "metrics": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "f1_at_k": 0.0,
+            "mrr": 0.16666666666666666,
+            "ndcg_at_k": 0.0,
+            "average_precision": 0.16666666666666666
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_115",
+            "chunk_34",
+            "chunk_121",
+            "chunk_124",
+            "chunk_28"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "In the Computer Networks study programme (2025-2026), list the compulsory courses in the 1st semester (names + course codes).",
+      "category": "study_programme_multi_hop",
+      "n_relevant": 3,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_230",
+            "chunk_470",
+            "chunk_107",
+            "chunk_174",
+            "chunk_478"
+          ],
+          "metrics": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "f1_at_k": 0.0,
+            "mrr": 0.16666666666666666,
+            "ndcg_at_k": 0.0,
+            "average_precision": 0.18253968253968253
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_470",
+            "chunk_478",
+            "chunk_514",
+            "chunk_481",
+            "chunk_485"
+          ],
+          "metrics": {
+            "recall_at_k": 0.3333333333333333,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.25,
+            "mrr": 0.25,
+            "ndcg_at_k": 0.20210734650054757,
+            "average_precision": 0.25
+          }
+        }
+      }
+    },
+    {
+      "question": "In the Data Science study programme (2025-2026), which compulsory courses are in the 2nd semester?",
+      "category": "study_programme_multi_hop",
+      "n_relevant": 9,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_365",
+            "chunk_362",
+            "chunk_359",
+            "chunk_435",
+            "chunk_363"
+          ],
+          "metrics": {
+            "recall_at_k": 0.3333333333333333,
+            "precision_at_k": 0.6,
+            "f1_at_k": 0.42857142857142855,
+            "mrr": 1.0,
+            "ndcg_at_k": 0.6843515475204855,
+            "average_precision": 0.7396825396825397
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_365",
+            "chunk_352",
+            "chunk_397",
+            "chunk_359",
+            "chunk_435"
+          ],
+          "metrics": {
+            "recall_at_k": 0.1111111111111111,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.14285714285714285,
+            "mrr": 1.0,
+            "ndcg_at_k": 0.3391602052736161,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "In the Software Engineering study programme (2025-2026), which compulsory courses have 'Exam contract not possible' as contract restrictions?",
+      "category": "study_programme_multi_hop",
+      "n_relevant": 5,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_422",
+            "chunk_421",
+            "chunk_420",
+            "chunk_413",
+            "chunk_380"
+          ],
+          "metrics": {
+            "recall_at_k": 0.2,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.20000000000000004,
+            "mrr": 0.25,
+            "ndcg_at_k": 0.14606834984270645,
+            "average_precision": 0.2526984126984127
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_422",
+            "chunk_380",
+            "chunk_413",
+            "chunk_420",
+            "chunk_447"
+          ],
+          "metrics": {
+            "recall_at_k": 0.2,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.20000000000000004,
+            "mrr": 0.3333333333333333,
+            "ndcg_at_k": 0.16958010263680806,
+            "average_precision": 0.3333333333333333
+          }
+        }
+      }
+    },
+    {
+      "question": "Which specialization (Data Science, Software Engineering, or Computer Networks) includes 'Future Internet' as a compulsory course, and what is its course code?",
+      "category": "study_programme_multi_hop",
+      "n_relevant": 0,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_107",
+            "chunk_108",
+            "chunk_175",
+            "chunk_270",
+            "chunk_110"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_107",
+            "chunk_110",
+            "chunk_175",
+            "chunk_108",
+            "chunk_470"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        }
+      }
+    },
+    {
+      "question": "Which compulsory course in the Software Engineering study programme is taught by Hans Vangheluwe?",
+      "category": "study_programme_multi_hop",
+      "n_relevant": 5,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_9",
+            "chunk_414",
+            "chunk_413",
+            "chunk_448",
+            "chunk_422"
+          ],
+          "metrics": {
+            "recall_at_k": 0.4,
+            "precision_at_k": 0.4,
+            "f1_at_k": 0.4000000000000001,
+            "mrr": 0.5,
+            "ndcg_at_k": 0.38356636737133565,
+            "average_precision": 0.4523809523809524
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_414",
+            "chunk_412",
+            "chunk_454",
+            "chunk_448",
+            "chunk_422"
+          ],
+          "metrics": {
+            "recall_at_k": 0.2,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.20000000000000004,
+            "mrr": 1.0,
+            "ndcg_at_k": 0.3391602052736161,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "Which compulsory course in the Computer Networks study programme is taught by Juan Felipe Botero, and what is its exam period?",
+      "category": "study_programme_multi_hop",
+      "n_relevant": 1,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_472",
+            "chunk_495",
+            "chunk_494",
+            "chunk_478",
+            "chunk_180"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_472",
+            "chunk_470",
+            "chunk_495",
+            "chunk_478",
+            "chunk_494"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.33333333333333337,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "For the course 'Model Driven Engineering' (listed in the Software Engineering study programme), what are its prerequisites and learning outcomes?",
+      "category": "cross_page_multi_hop",
+      "n_relevant": 2,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_184",
+            "chunk_185",
+            "chunk_127",
+            "chunk_128",
+            "chunk_252"
+          ],
+          "metrics": {
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.4,
+            "f1_at_k": 0.5714285714285715,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_411",
+            "chunk_413",
+            "chunk_412"
+          ],
+          "metrics": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "f1_at_k": 0.0,
+            "mrr": 0.0,
+            "ndcg_at_k": 0.0,
+            "average_precision": 0.0
+          }
+        }
+      }
+    },
+    {
+      "question": "For the course 'Future Internet' (listed in the Computer Networks study programme), what are its course contents and assessment method?",
+      "category": "cross_page_multi_hop",
+      "n_relevant": 0,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_180",
+            "chunk_107",
+            "chunk_122",
+            "chunk_174",
+            "chunk_470"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_470",
+            "chunk_477",
+            "chunk_507",
+            "chunk_474",
+            "chunk_523"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        }
+      }
+    },
+    {
+      "question": "For the course 'Data Mining' (listed in the Data Science study programme), what are its prerequisites and course contents?",
+      "category": "cross_page_multi_hop",
+      "n_relevant": 2,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_294",
+            "chunk_140",
+            "chunk_335",
+            "chunk_203",
+            "chunk_139"
+          ],
+          "metrics": {
+            "recall_at_k": 0.5,
+            "precision_at_k": 0.2,
+            "f1_at_k": 0.28571428571428575,
+            "mrr": 0.5,
+            "ndcg_at_k": 0.38685280723454163,
+            "average_precision": 0.35
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_352",
+            "chunk_359",
+            "chunk_403",
+            "chunk_354",
+            "chunk_389"
+          ],
+          "metrics": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "f1_at_k": 0.0,
+            "mrr": 0.0,
+            "ndcg_at_k": 0.0,
+            "average_precision": 0.0
+          }
+        }
+      }
+    },
+    {
+      "question": "What career opportunities are mentioned for the Data Science specialization?",
+      "category": "website_single_hop",
+      "n_relevant": 3,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_406",
+            "chunk_404",
+            "chunk_395",
+            "chunk_345",
+            "chunk_462"
+          ],
+          "metrics": {
+            "recall_at_k": 0.6666666666666666,
+            "precision_at_k": 0.4,
+            "f1_at_k": 0.5,
+            "mrr": 1.0,
+            "ndcg_at_k": 0.7653606369886217,
+            "average_precision": 0.7777777777777778
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_406",
+            "chunk_404",
+            "chunk_522",
+            "chunk_295",
+            "chunk_395"
+          ],
+          "metrics": {
+            "recall_at_k": 0.6666666666666666,
+            "precision_at_k": 0.4,
+            "f1_at_k": 0.5,
+            "mrr": 1.0,
+            "ndcg_at_k": 0.7653606369886217,
+            "average_precision": 1.0
+          }
+        }
+      }
+    },
+    {
+      "question": "What are the admission and enrolment requirements for the Master of Computer Science: Software Engineering programme?",
+      "category": "website_single_hop",
+      "n_relevant": 0,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_554",
+            "chunk_457",
+            "chunk_461",
+            "chunk_555",
+            "chunk_10"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_554",
+            "chunk_556",
+            "chunk_457",
+            "chunk_461",
+            "chunk_555"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        }
+      }
+    },
+    {
+      "question": "What are the tuition fees for the Computer Science Masters?",
+      "category": "boundary",
+      "n_relevant": 6,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_541",
+            "chunk_562",
+            "chunk_583",
+            "chunk_566",
+            "chunk_587"
+          ],
+          "metrics": {
+            "recall_at_k": 0.8333333333333334,
+            "precision_at_k": 1.0,
+            "f1_at_k": 0.9090909090909091,
+            "mrr": 1.0,
+            "ndcg_at_k": 1.0,
+            "average_precision": 1.0
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_541",
+            "chunk_460",
+            "chunk_514",
+            "chunk_566",
+            "chunk_438"
+          ],
+          "metrics": {
+            "recall_at_k": 0.3333333333333333,
+            "precision_at_k": 0.4,
+            "f1_at_k": 0.3636363636363636,
+            "mrr": 1.0,
+            "ndcg_at_k": 0.48522855511632257,
+            "average_precision": 0.75
+          }
+        }
+      }
+    },
+    {
+      "question": "What is the thesis submission deadline?",
+      "category": "boundary",
+      "n_relevant": 0,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_235",
+            "chunk_161",
+            "chunk_14",
+            "chunk_236",
+            "chunk_162"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_235",
+            "chunk_241",
+            "chunk_242",
+            "chunk_236",
+            "chunk_157"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        }
+      }
+    },
+    {
+      "question": "How can I get a scholarship for this programme?",
+      "category": "boundary",
+      "n_relevant": 0,
+      "systems": {
+        "baseline": {
+          "top_k": [
+            "chunk_563",
+            "chunk_542",
+            "chunk_584",
+            "chunk_212",
+            "chunk_457"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        },
+        "agentic": {
+          "top_k": [
+            "chunk_563",
+            "chunk_212",
+            "chunk_513",
+            "chunk_457",
+            "chunk_155"
+          ],
+          "metrics": {
+            "recall_at_k": null,
+            "precision_at_k": null,
+            "f1_at_k": null,
+            "mrr": null,
+            "ndcg_at_k": null,
+            "average_precision": null
+          }
+        }
+      }
+    }
+  ]
+}
