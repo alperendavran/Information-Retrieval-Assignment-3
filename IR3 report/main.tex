@@ -1,0 +1,906 @@
+\documentclass[11pt,a4paper]{article}
+
+% Page layout
+\usepackage[a4paper,margin=2.5cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+% Typography and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Graphics and colors
+\usepackage{graphicx}
+\usepackage{xcolor}
+\definecolor{uablue}{RGB}{0,61,165}
+
+% Links and references
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=uablue,
+    citecolor=uablue,
+    urlcolor=uablue,
+    bookmarksnumbered=true
+}
+\usepackage{natbib}
+\usepackage{url}
+
+% Code listings
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!5},
+    captionpos=b
+}
+
+% Headers and footers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{uablue}{Information Retrieval - Assignment 3}}
+\fancyhead[R]{\textcolor{uablue}{2025/2026}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Title page
+\title{
+    \vspace{-1cm}
+    \includegraphics[width=0.3\textwidth]{images/logoUantwerpen.png} \\[1cm]
+    {\huge\bfseries\textcolor{uablue}{Retrieval Augmented Generation}}\\[0.5cm]
+    {\Large Assignment 3}\\[0.3cm]
+    {\large Information Retrieval Course}\\
+    {\large Academic Year 2025/2026}
+}
+
+\author{
+    \textbf{Group Members:}\\[0.3cm]
+    \begin{tabular}{ll}
+        Alperen Davran & s0250946 \\
+        Matteo Carlo Comi & s0259766 \\
+        Shakhzodbek Bakhtiyorov & s0242661 \\
+        Amin Borqal & s0259707 \\
+    \end{tabular}\\[1cm]
+    \textbf{University of Antwerp}\\
+    Faculty of Science\\
+    Department of Computer Science
+}
+\date{
+    \today \\[0.5cm]
+    \textbf{GitHub Repository:}\\
+    \href{https://github.com/alperendavran/Information-Retrieval-Assignment-3}{\textcolor{uablue}{https://github.com/alperendavran/Information-Retrieval-Assignment-3}}
+}
+
+\begin{document}
+
+% Title page
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% Set spacing for main content
+\onehalfspacing
+
+
+\section{Introduction}
+
+Retrieval Augmented Generation (RAG) systems combine information retrieval with large language models to provide accurate, grounded answers to user queries. This project implements a RAG system for the University of Antwerp Computer Science Masters program, addressing the challenge of providing prospective and current students with accurate information about courses, prerequisites, schedules, and program requirements.
+
+\subsection{Motivation}
+
+Traditional question-answering systems often struggle with domain-specific queries or produce hallucinated responses when relying solely on the parametric knowledge of language models. RAG systems address these limitations by:
+
+\begin{itemize}
+    \item Grounding responses in retrieved source documents
+    \item Reducing hallucinations through explicit context
+    \item Enabling transparent attribution of information sources
+    \item Supporting scalable knowledge updates without model retraining
+\end{itemize}
+
+\subsection{System Overview}
+
+Our implementation consists of five core components:
+
+\begin{enumerate}
+    \item \textbf{Document Chunking}: Splitting course descriptions into semantically coherent passages
+    \item \textbf{Embedding \& Indexing}: Computing dense vector representations and building efficient retrieval indices
+    \item \textbf{Retrieval Module}: Encoding queries and retrieving top-k similar passages
+    \item \textbf{Answer Generation}: Using GPT-4o to synthesize answers from retrieved context
+    \item \textbf{Evaluation Framework}: Assessing retrieval quality, answer quality, and error patterns
+\end{enumerate}
+
+We implement two system variants:
+\begin{itemize}
+    \item \textbf{Baseline}: Standard dense retrieval with top-k passage selection
+    \item \textbf{Agentic}: Advanced workflow with multi-query expansion and reciprocal rank fusion
+\end{itemize}
+
+\section{System Architecture}
+
+\subsection{Document Chunking (10\%)}
+
+\subsubsection{Dataset}
+
+The dataset consists of scraped webpages from the University of Antwerp Computer Science Masters program, including:
+\begin{itemize}
+    \item Course descriptions (prerequisites, learning outcomes, content, assessment)
+    \item Program structure information
+    \item Study programme overviews for three tracks: Software Engineering, Data Science \& AI, and Computer Networks
+\end{itemize}
+
+After preprocessing, the dataset contains \textbf{588 passages} across all course materials.
+
+\subsubsection{Chunking Strategy}
+
+\textbf{Chunk Size}: 250 tokens (approximately 180-220 words)
+
+\textbf{Rationale}:
+\begin{itemize}
+    \item Large enough to capture complete semantic units (e.g., a course's prerequisites section)
+    \item Small enough to maintain focused relevance for specific queries
+    \item Balances context window efficiency in the generation model
+    \item Aligns with typical paragraph/section lengths in course descriptions
+\end{itemize}
+
+\textbf{Overlap}: 15\% (approximately 37 tokens)
+
+This overlap ensures:
+\begin{itemize}
+    \item Important information at chunk boundaries is not lost
+    \item Improved retrieval recall for queries spanning multiple chunks
+    \item Better semantic continuity across passages
+\end{itemize}
+
+\subsubsection{Preprocessing}
+
+The following preprocessing steps were applied:
+
+\begin{enumerate}
+    \item \textbf{HTML/Markdown removal}: Already performed in the provided dataset
+    \item \textbf{Text normalization}: Unicode normalization to handle special characters
+    \item \textbf{Sentence boundary preservation}: Chunks are split at sentence boundaries when possible to maintain semantic coherence
+    \item \textbf{Metadata extraction}: Each chunk retains metadata including course title, section type, and source URL
+\end{enumerate}
+
+\textbf{No lowercasing} was applied, as:
+\begin{itemize}
+    \item Course codes (e.g., "2500WETINT") are case-sensitive
+    \item Proper nouns (e.g., "Miguel Camelo", "University of Antwerp") carry important information
+    \item Modern embedding models handle case variations effectively
+\end{itemize}
+
+\subsection{Embedding \& Indexing (20\%)}
+
+\subsubsection{Embedding Model Selection}
+
+\textbf{Model}: \texttt{sentence-transformers/all-MiniLM-L6-v2}
+
+\textbf{Specifications}:
+\begin{itemize}
+    \item Embedding dimension: 384
+    \item Max sequence length: 256 tokens
+    \item Model size: 80MB
+    \item Inference speed: ~2,800 sentences/second on CPU
+\end{itemize}
+
+\textbf{Justification}:
+
+We use \textbf{dense retrieval} rather than lexical (BM25) methods because: (i) it captures \textbf{semantic similarity} and handles vocabulary mismatch (synonyms, paraphrases)~\cite{karpukhin2020}; (ii) we encode query and documents with the \textbf{same model} (dual-encoder, bi-encoder), ensuring comparable representations in a shared vector space~\cite{reimers2019}. Our choice of MiniLM is motivated by:
+
+\begin{enumerate}
+    \item \textbf{Local execution}: Runs efficiently on consumer hardware without GPU requirements (assignment constraint)
+    \item \textbf{Quality}: Strong performance on semantic textual similarity benchmarks~\cite{reimers2019}
+    \item \textbf{Efficiency}: Small model size enables fast embedding computation
+    \item \textbf{Domain suitability}: Pre-trained on diverse text, generalizes well to educational content
+    \item \textbf{Community adoption}: Widely used baseline in RAG systems, enabling comparison with existing work
+\end{enumerate}
+
+\subsubsection{Indexing Strategy}
+
+\textbf{Index Type}: FAISS Flat Index (Inner Product)
+
+\textbf{Implementation Details}:
+\begin{itemize}
+    \item All embeddings are L2-normalized before indexing
+    \item \textbf{Cosine similarity}: We use inner product on L2-normalized vectors, which is equivalent to cosine similarity. Cosine is standard in the Vector Space Model~\cite{manning2008}: it measures the angle between vectors and is \textit{length-invariant}---document length does not skew relevance scores
+    \item Exact search guarantees optimal retrieval quality (no approximation error)
+    \item Index size: 588 vectors × 384 dimensions = ~900KB (negligible memory footprint)
+\end{itemize}
+
+\textbf{Rationale}:
+\begin{itemize}
+    \item Dataset size (588 passages) is small enough for exact search
+    \item No need for approximate methods (e.g., IVF, HNSW) at this scale
+    \item Exact search ensures reproducible evaluation results
+    \item Simplifies debugging and error analysis
+\end{itemize}
+
+For larger datasets ($>$100K passages), we would consider:
+\begin{itemize}
+    \item IVF (Inverted File) index for efficient clustering
+    \item HNSW (Hierarchical Navigable Small World) for graph-based approximate search
+    \item Product quantization for memory reduction
+\end{itemize}
+
+\subsection{Retrieval Module (20\%)}
+
+\subsubsection{Query Processing}
+
+The retrieval pipeline consists of:
+
+\begin{enumerate}
+    \item \textbf{Query encoding}: Same embedding model as documents (\texttt{all-MiniLM-L6-v2})
+    \item \textbf{Normalization}: L2-normalize query embedding
+    \item \textbf{Similarity search}: FAISS inner product search
+    \item \textbf{Ranking}: Sort by similarity score (higher = more relevant)
+\end{enumerate}
+
+\subsubsection{Top-k Selection}
+
+\textbf{k = 5} passages per query
+
+\textbf{Rationale}:
+\begin{itemize}
+    \item Classic \textbf{precision--recall trade-off}~\cite{manning2008}: higher $k$ increases recall (more relevant documents in the pool) but dilutes precision and introduces noise. Lower $k$ gives focused context but may miss relevant information
+    \item Fits comfortably within GPT-4o's context window (avoids truncation)
+    \item Assignment guideline: ``$k$=1 is too small, $k$=20 likely too big'' for this collection
+    \item Empirically: $k$=5 balances these factors for our 588-passage corpus
+\end{itemize}
+
+\subsubsection{Agentic Retrieval Enhancements}
+
+The agentic system extends baseline retrieval with:
+
+\begin{enumerate}
+    \item \textbf{Multi-query expansion}: Generate 2-3 query variations
+    \item \textbf{Reciprocal Rank Fusion (RRF)}: Merge results from multiple queries
+    \item \textbf{Post-retrieval deduplication}: Remove duplicate passages
+    \item \textbf{MMR diversification}: Maximal Marginal Relevance for result diversity
+\end{enumerate}
+
+\textbf{RRF Formula}:
+\begin{equation}
+\text{RRF}(d) = \sum_{q \in Q} \frac{1}{k + \text{rank}_q(d)}
+\end{equation}
+
+where $k=60$ is a smoothing parameter, $Q$ is the set of query variations, and $\text{rank}_q(d)$ is the rank of document $d$ for query $q$.
+
+\subsection{Answer Generation Module (30\%)}
+
+\subsubsection{Generation Pipeline}
+
+\begin{enumerate}
+    \item \textbf{Context assembly}: Concatenate top-k passages with metadata
+    \item \textbf{Prompt construction}: Insert context and query into structured prompt
+    \item \textbf{LLM inference}: GPT-4o generates grounded answer
+    \item \textbf{Source attribution}: Return passages with similarity scores
+\end{enumerate}
+
+\subsubsection{Prompt Template}
+
+The system prompt instructs GPT-4o to:
+\begin{itemize}
+    \item Answer based \textbf{only} on provided context
+    \item Cite source passages when possible
+    \item Explicitly state "I don't have enough information" if context is insufficient
+    \item Avoid speculation or hallucination
+    \item Maintain factual accuracy
+\end{itemize}
+
+\textbf{Example Prompt Structure}:
+
+\begin{lstlisting}[language=Python]
+You are a helpful assistant for the University of 
+Antwerp Computer Science Masters program. Answer the 
+question based ONLY on the provided context.
+
+Context:
+[Passage 1]: ...
+[Passage 2]: ...
+...
+
+Question: {query}
+
+Answer:
+\end{lstlisting}
+
+\subsubsection{Generation Parameters}
+
+\begin{itemize}
+    \item \textbf{Model}: GPT-4o (\texttt{gpt-4o})
+    \item \textbf{Temperature}: 0.1 (low temperature for factual responses)
+    \item \textbf{Max tokens}: 1000 (sufficient for detailed answers)
+    \item \textbf{API configuration}: Uses provided API key with rate limiting
+\end{itemize}
+
+\subsubsection{Baseline Comparison}
+
+We compare RAG answers to \textbf{baseline answers} (GPT-4o without retrieval):
+
+\textbf{Example Comparison}:
+
+\textit{Query}: "How many ECTS is Internet of Things?"
+
+\textbf{WITH RETRIEVAL}:
+\begin{quote}
+"The Internet of Things course is worth 6 ECTS credits."
+\end{quote}
+
+\textbf{WITHOUT RETRIEVAL (baseline)}:
+\begin{quote}
+"The 'Internet of Things' course in the University of Antwerp's Computer Science Master's program is typically worth 6 ECTS credits. However, it's always a good idea to check the most current course catalog..."
+\end{quote}
+
+\textbf{Observations}:
+\begin{itemize}
+    \item RAG provides concise, definitive answer
+    \item Baseline hedges with uncertainty despite correct answer
+    \item RAG includes source attribution
+\end{itemize}
+
+\section{System Evaluation (20\%)}
+
+\subsection{Evaluation Methodology}
+
+We employ a multi-faceted evaluation approach:
+
+\subsubsection{Pooled Relevance Judgments}
+
+\begin{enumerate}
+    \item \textbf{Query set}: 19 test queries covering diverse information needs
+    \item \textbf{Candidate pooling}: Combine top-20 results from both systems
+    \item \textbf{LLM-based labeling}: GPT-4o-mini judges relevance using function calling
+    \item \textbf{Metrics}: Recall@5, MRR, nDCG@5, MAP
+\end{enumerate}
+
+\textbf{Why pooled evaluation?}
+\begin{itemize}
+    \item Avoids bias toward individual systems
+    \item Provides fair comparison on shared relevance labels
+    \item Enables reliable ablation analysis
+\end{itemize}
+
+\subsubsection{Cost Analysis}
+
+Total evaluation cost: \textbf{\$0.064} (6.4 cents)
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Operation & Events & Cost (USD) & \% \\
+\midrule
+LLM label relevance & 322 & 0.035297 & 55.1\% \\
+LLM judge faithfulness & 78 & 0.015455 & 24.1\% \\
+Answer generation & 65 & 0.010682 & 16.7\% \\
+LLM judge compare & 20 & 0.002531 & 4.0\% \\
+Tool router & 1 & 0.000096 & 0.1\% \\
+\midrule
+\textbf{Total} & \textbf{486} & \textbf{0.064062} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\caption{OpenAI API cost breakdown (model: gpt-4o-mini)}
+\end{table}
+
+\subsection{Retrieval Quality}
+
+\subsubsection{Quantitative Results}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+System & Recall@5 & MRR & nDCG@5 & MAP \\
+\midrule
+Baseline & 0.796±0.284 & 1.000±0.000 & 0.958±0.137 & 0.950±0.132 \\
+Agentic & 0.730±0.303 & 1.000±0.000 & 0.902±0.189 & 0.974±0.078 \\
+\bottomrule
+\end{tabular}
+\caption{Retrieval quality on pooled relevance labels (n=19 queries)}
+\end{table}
+
+\textbf{Key Findings}:
+
+\begin{itemize}
+    \item \textbf{Baseline outperforms agentic} on Recall@5 (0.796 vs 0.730)
+    \item Both systems achieve \textbf{perfect MRR} (1.0), indicating top-1 results are highly relevant
+    \item \textbf{High standard deviations} reflect query difficulty variation
+    \item Agentic system shows \textbf{slightly higher MAP} (0.974 vs 0.950), suggesting better overall ranking
+\end{itemize}
+
+\subsubsection{Interpretation}
+
+The \textbf{baseline's superior Recall@5} is surprising given the agentic system's query expansion. Possible explanations:
+
+\begin{enumerate}
+    \item \textbf{Query drift}: Expanded queries introduce noise, retrieving less relevant passages
+    \item \textbf{Rank fusion artifacts}: RRF may down-weight highly relevant passages from original query
+    \item \textbf{Dataset size}: At 588 passages, sophisticated retrieval may be unnecessary
+    \item \textbf{Evaluation bias}: Pooled labels may favor simpler retrieval strategies
+\end{enumerate}
+
+\textbf{Perfect MRR} indicates:
+\begin{itemize}
+    \item Most queries have at least one highly relevant passage in top-1
+    \item Embedding model effectively captures semantic similarity
+    \item Query formulation in test set is clear and unambiguous
+\end{itemize}
+
+\subsection{Answer Quality}
+
+\subsubsection{Manual Inspection Examples}
+
+\textbf{Example 1: Factual Query}
+
+\textit{Query}: "How many ECTS is Internet of Things?"
+
+\textbf{Retrieved passages}: 5 highly relevant chunks from IoT course description
+
+\textbf{Generated answer}: 
+\begin{quote}
+"The Internet of Things course is worth 6 ECTS credits."
+\end{quote}
+
+\textbf{Evaluation}:
+\begin{itemize}
+    \item \textbf{Correctness}: ✓ (verified against ground truth)
+    \item \textbf{Completeness}: ✓ (answers fully)
+    \item \textbf{Hallucination}: None
+    \item \textbf{Source attribution}: ✓ (cites IoT course page)
+\end{itemize}
+
+\textbf{Example 2: Complex Multi-Part Query}
+
+\textit{Query}: "Who teaches Internet of Things and what semester is it in?"
+
+\textbf{WITH RETRIEVAL}:
+\begin{quote}
+"The course 'Internet of Things' is taught by Miguel Camelo and is offered in the 2nd semester (2E SEM)."
+\end{quote}
+
+\textbf{WITHOUT RETRIEVAL}:
+\begin{quote}
+"The course 'Internet of Things' in the University of Antwerp's Computer Science Master's program is taught by Peter Hellinckx. It is offered in the first semester."
+\end{quote}
+
+\textbf{Evaluation}:
+\begin{itemize}
+    \item RAG: \textbf{Correct} (Miguel Camelo, 2nd semester)
+    \item Baseline: \textbf{Incorrect} (wrong instructor, wrong semester)
+    \item Demonstrates critical value of retrieval for factual accuracy
+\end{itemize}
+
+\textbf{Example 3: Insufficient Context}
+
+\textit{Query}: "What programming languages do I need for IoT?"
+
+\textbf{Retrieved passages}: General IoT prerequisites mentioning "C, C++, Python"
+
+\textbf{Generated answer}:
+\begin{quote}
+"I don't have enough information in the provided context to answer this question."
+\end{quote}
+
+\textbf{Analysis}:
+\begin{itemize}
+    \item System correctly identifies insufficient detail
+    \item Prerequisites mention languages but not specific proficiency requirements
+    \item Conservative response avoids hallucination
+\end{itemize}
+
+\subsubsection{Faithfulness Analysis}
+
+We use GPT-4o-mini as a judge to evaluate \textbf{faithfulness} (does the answer match the retrieved context?):
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Judgment & Count & \% \\
+\midrule
+Faithful & 61 & 78.2\% \\
+Partially faithful & 12 & 15.4\% \\
+Unfaithful & 5 & 6.4\% \\
+\midrule
+\textbf{Total} & \textbf{78} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\caption{Faithfulness evaluation (LLM-as-judge)}
+\end{table}
+
+\textbf{Observations}:
+\begin{itemize}
+    \item 78.2\% of answers are fully faithful to retrieved context
+    \item Low temperature (0.1) reduces hallucination risk
+    \item Unfaithful cases often involve inference beyond provided facts
+\end{itemize}
+
+\subsection{Error Analysis}
+
+\subsubsection{Retrieval Failures (3 cases)}
+
+\textbf{Case 1: Second Semester Compulsory Courses (Data Science)}
+
+\textit{Query}: "In the Data Science study programme (2025-2026), which compulsory courses are in the 2nd semester?"
+
+\textbf{Recall@5}: 0.250 (5 relevant passages retrieved, 20 total relevant)
+
+\textbf{Issue}:
+\begin{itemize}
+    \item Query requires \textbf{aggregating information} from 20 separate course descriptions
+    \item Each course is in a separate chunk
+    \item Top-5 retrieval fundamentally insufficient for comprehensive answer
+    \item Embedding similarity favors individual courses over complete program structure
+\end{itemize}
+
+\textbf{Retrieved (relevant)}:
+\begin{enumerate}
+    \item Current Trends in DS \& AI (2000WETCTD, 2E SEM)
+    \item Algorithmic Foundations of DS (2001WETATD, 2E SEM)
+    \item Bioinformatics (2002WETBIN, 2E SEM)
+    \item Nonsmooth Optimisation (2600WETNOO, 2E SEM)
+    \item Software Reengineering (2001WETSRE, 2E SEM)
+\end{enumerate}
+
+\textbf{Missed (relevant)}:
+\begin{itemize}
+    \item Internet of Things, Master Thesis, Programming Paradigms, Data Mining, Software Testing, Neural Networks, Research Project, Internship, Case Studies, Convex Analysis (15 more courses)
+\end{itemize}
+
+\textbf{Root cause}:
+\begin{itemize}
+    \item \textbf{Chunk granularity mismatch}: Individual courses are atomic units, but query needs course \textit{list}
+    \item \textbf{Embedding bias}: Similarity model ranks specific course matches over program-level information
+    \item \textbf{k-value limitation}: Even k=20 would miss some courses
+\end{itemize}
+
+\textbf{Potential solutions}:
+\begin{enumerate}
+    \item Create \textbf{summary chunks} listing all courses per semester/program
+    \item Implement \textbf{hierarchical retrieval} (program → semester → individual courses)
+    \item Use \textbf{query expansion} to explicitly request course lists
+    \item Increase k or use \textbf{multi-hop retrieval}
+\end{enumerate}
+
+\textbf{Case 2: Instructor-Specific Query (Computer Networks)}
+
+\textit{Query}: "Which compulsory course in the Computer Networks study programme is taught by Juan Felipe Botero, and what is its exam period?"
+
+\textbf{Recall@5}: 0.250 (1 relevant out of 4 total)
+
+\textbf{Retrieved}:
+\begin{enumerate}
+    \item Future Internet (2500WETFUI, Juan Felipe Botero) ✓ \textbf{Relevant}
+    \item Specification \& Verification (different instructor) ✗
+    \item Programming Paradigms (different instructor) ✗
+    \item Topics in Computer Networks (different instructor) ✗
+    \item Internet of Things (different instructor) ✗
+\end{enumerate}
+
+\textbf{Issue}:
+\begin{itemize}
+    \item Query contains \textbf{specific instructor name} (Juan Felipe Botero)
+    \item Embedding model struggles with \textbf{named entity matching}
+    \item Retrieved passages mention course names but not instructors prominently
+    \item Metadata (instructor field) not leveraged in retrieval
+\end{itemize}
+
+\textbf{Root cause}:
+\begin{itemize}
+    \item Dense embeddings capture semantic similarity, not exact entity matches
+    \item Instructor names appear as metadata, not in passage text
+    \item Lack of \textbf{hybrid retrieval} (dense + sparse/keyword)
+\end{itemize}
+
+\textbf{Potential solutions}:
+\begin{enumerate}
+    \item \textbf{Hybrid retrieval}: Combine dense embeddings with BM25 for keyword matching
+    \item \textbf{Metadata filtering}: Use structured filters (e.g., "instructor=Juan Felipe Botero")
+    \item \textbf{Entity-aware chunking}: Include instructor names in passage text
+    \item \textbf{Query rewriting}: Extract entities and create targeted sub-queries
+\end{enumerate}
+
+\textbf{Case 3: First Semester Course List (Computer Networks)}
+
+\textit{Query}: "In the Computer Networks study programme (2025-2026), list the compulsory courses in the 1st semester (names + course codes)."
+
+\textbf{Recall@5}: 0.312 (5 relevant out of 16 total)
+
+\textbf{Retrieved (all relevant)}:
+\begin{enumerate}
+    \item Specification \& Verification (2001WETFSP, 1E SEM)
+    \item Data Science \& Ethics (2104TEWDAS, 1E SEM)
+    \item Future Internet (2500WETFUI, 1E SEM)
+    \item AI Project (2001WETPDB, 1E SEM)
+    \item Optimisation (1601WETOPT, 1E SEM)
+\end{enumerate}
+
+\textbf{Missed (11 courses)}:
+Model Driven Engineering, Numerical Optimisation, Database Systems, Academic Literacies, Biomedical AI, Advanced Wireless \& 5G, Information Retrieval, Math Foundations of RL, Modelling of Software Systems, etc.
+
+\textbf{Issue}:
+\begin{itemize}
+    \item Similar to Case 1: \textbf{aggregation problem}
+    \item Query needs 16 courses, k=5 is insufficient
+    \item No single chunk contains complete course list
+\end{itemize}
+
+\textbf{Why Recall@5 > Case 1?}
+\begin{itemize}
+    \item Fewer total relevant passages (16 vs 20)
+    \item First semester courses may have stronger embedding similarity to query
+    \item Random variation in ranking
+\end{itemize}
+
+\subsubsection{Generation Errors (3 cases)}
+
+\textbf{Case 1: Hallucinated Instructor (Baseline)}
+
+\textit{Query}: "Who teaches Internet of Things and what semester is it in?"
+
+\textbf{WITHOUT RETRIEVAL (Baseline)}:
+\begin{quote}
+"The course 'Internet of Things' in the University of Antwerp's Computer Science Master's program is taught by \textbf{Peter Hellinckx}. It is offered in the \textbf{first semester}."
+\end{quote}
+
+\textbf{Ground Truth}:
+\begin{itemize}
+    \item Instructor: Miguel Camelo
+    \item Semester: 2E SEM (second semester)
+\end{itemize}
+
+\textbf{Analysis}:
+\begin{itemize}
+    \item GPT-4o's parametric knowledge is \textbf{outdated} (knowledge cutoff: January 2025)
+    \item Peter Hellinckx may have taught IoT in previous years
+    \item Without retrieval, model defaults to plausible but incorrect information
+    \item Demonstrates \textbf{critical value of RAG} for time-sensitive facts
+\end{itemize}
+
+\textbf{Case 2: Over-Generalization (WITH RETRIEVAL)}
+
+\textit{Query}: "Can I use AI tools in my Master thesis?"
+
+\textbf{Retrieved context} (from Master Thesis assessment criteria):
+\begin{quote}
+"Students may use generative AI tools for writing the master thesis, similar to initial search engines such as Google and for checking grammar and spelling. During the thesis defence, students may be asked to elaborate on how they used generative AI."
+\end{quote}
+
+\textbf{Generated answer}:
+\begin{quote}
+"Yes, you can use generative AI tools in your Master thesis. You may use them for writing the thesis, similar to using search engines like Google, and for checking grammar and spelling. However, it must be clearly indicated which code was created by which tools, and during the thesis defence, you may be asked to elaborate on how you used generative AI."
+\end{quote}
+
+\textbf{Issue}:
+\begin{itemize}
+    \item Answer conflates \textbf{two separate contexts}: writing assistance and code generation
+    \item "which code was created by which tools" comes from a different section (assessment of code projects)
+    \item Not technically a hallucination, but \textbf{imprecise context merging}
+\end{itemize}
+
+\textbf{Root cause}:
+\begin{itemize}
+    \item Multiple passages discuss AI tool usage in different contexts
+    \item Generation model struggles to disambiguate thesis \textit{writing} vs thesis \textit{code}
+    \item Prompt doesn't enforce strict passage boundaries
+\end{itemize}
+
+\textbf{Case 3: Insufficient Context Handling}
+
+\textit{Query}: "What programming languages do I need for IoT?"
+
+\textbf{Retrieved context}:
+\begin{quote}
+"Prerequisites: Programming in C, C++, Python (1Ba course 'Inleiding Programmeren' or equivalent)"
+\end{quote}
+
+\textbf{Generated answer}:
+\begin{quote}
+"I don't have enough information in the provided context to answer this question."
+\end{quote}
+
+\textbf{Analysis}:
+\begin{itemize}
+    \item Answer is \textbf{technically correct} (prerequisites ≠ specific language requirements)
+    \item However, a more helpful response would acknowledge C/C++/Python are mentioned as prerequisites
+    \item System prompt prioritizes \textbf{conservatism over helpfulness}
+\end{itemize}
+
+\textbf{Trade-off}:
+\begin{itemize}
+    \item \textbf{Conservative}: Reduces hallucination risk, but may under-utilize available information
+    \item \textbf{Aggressive}: Provides more complete answers, but risks inference beyond facts
+\end{itemize}
+
+\textbf{Baseline (WITHOUT RETRIEVAL)} provides detailed answer:
+\begin{quote}
+"For the Internet of Things (IoT), several programming languages are commonly used... C/C++, Python, Java, JavaScript, Rust, Lua, Go, Swift..."
+\end{quote}
+
+\textbf{Comparison}:
+\begin{itemize}
+    \item Baseline is more informative but \textbf{not grounded} in UAntwerp's specific requirements
+    \item RAG answer is \textbf{safer but less helpful}
+    \item Highlights importance of prompt engineering for balancing precision/recall
+\end{itemize}
+
+\subsection{Summary of Findings}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lp{10cm}}
+\toprule
+\textbf{Component} & \textbf{Key Insight} \\
+\midrule
+Chunking & 250-token chunks with 15\% overlap balance semantic coherence and retrieval precision \\
+Embedding & all-MiniLM-L6-v2 provides strong quality-efficiency trade-off for local deployment \\
+Indexing & Flat index sufficient for 588 passages; exact search ensures reproducibility \\
+Retrieval & Baseline outperforms agentic (Recall@5: 0.796 vs 0.730); query expansion may introduce noise \\
+Generation & RAG reduces hallucinations vs baseline; low temperature (0.1) improves faithfulness \\
+Errors & Aggregation queries, entity matching, and conservative prompts are key failure modes \\
+\bottomrule
+\end{tabular}
+\caption{Summary of evaluation findings}
+\end{table}
+
+\section{Discussion}
+
+\subsection{System Performance}
+
+\subsubsection{Strengths}
+
+\begin{enumerate}
+    \item \textbf{High retrieval quality}: Baseline achieves 79.6\% Recall@5, with perfect MRR
+    \item \textbf{Factual accuracy}: RAG significantly reduces hallucinations vs baseline LLM
+    \item \textbf{Efficient architecture}: Local embeddings + exact search enable fast inference
+    \item \textbf{Low cost}: Full evaluation costs only \$0.064 using GPT-4o-mini
+    \item \textbf{Transparent attribution}: Source passages enable verification
+\end{enumerate}
+
+\subsubsection{Limitations}
+
+\begin{enumerate}
+    \item \textbf{Aggregation queries}: Cannot answer questions requiring 15+ passages
+    \item \textbf{Entity matching}: Struggles with specific names, course codes in queries
+    \item \textbf{Agentic underperformance}: Query expansion introduces noise at this scale
+    \item \textbf{Conservative generation}: May under-utilize available context
+    \item \textbf{No temporal awareness}: Cannot distinguish current vs historical information
+\end{enumerate}
+
+\subsection{Baseline vs Agentic Trade-offs}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Dimension} & \textbf{Baseline} & \textbf{Agentic} \\
+\midrule
+Recall@5 & \textbf{0.796±0.284} & 0.730±0.303 \\
+MRR & 1.000±0.000 & 1.000±0.000 \\
+nDCG@5 & \textbf{0.958±0.137} & 0.902±0.189 \\
+MAP & 0.950±0.132 & \textbf{0.974±0.078} \\
+Complexity & Low & High \\
+Latency & \textbf{Fast} & Slow (3x queries) \\
+Robustness & \textbf{High} & Sensitive to expansion \\
+\bottomrule
+\end{tabular}
+\caption{Baseline vs Agentic comparison}
+\end{table}
+
+\textbf{Recommendation}: For this dataset size (588 passages), \textbf{baseline is preferable}. Agentic techniques may benefit larger, noisier corpora.
+
+\section{Conclusion}
+
+This project successfully implemented a complete RAG system for the University of Antwerp Computer Science Masters program. Key achievements include:
+
+\begin{itemize}
+    \item \textbf{Effective chunking strategy}: 250 tokens with 15\% overlap balances coherence and granularity
+    \item \textbf{Efficient local deployment}: all-MiniLM-L6-v2 + FAISS enables fast, reproducible retrieval
+    \item \textbf{Strong baseline performance}: 79.6\% Recall@5 with perfect MRR on pooled labels
+    \item \textbf{Reduced hallucinations}: RAG provides factually grounded answers vs baseline LLM
+    \item \textbf{Comprehensive evaluation}: Multi-dimensional assessment (retrieval, generation, errors)
+\end{itemize}
+
+Our error analysis reveals critical insights:
+\begin{enumerate}
+    \item \textbf{Aggregation queries} (e.g., "list all courses") challenge fixed-k retrieval
+    \item \textbf{Entity matching} (e.g., instructor names) requires hybrid retrieval
+    \item \textbf{Conservative prompts} reduce hallucinations but may under-utilize context
+\end{enumerate}
+
+Surprisingly, the \textbf{baseline outperforms the agentic system} at this scale. Query expansion introduces noise when the corpus is small and well-structured. This highlights the importance of \textbf{matching system complexity to dataset characteristics}.
+
+For production deployment, we recommend:
+\begin{itemize}
+    \item Hybrid retrieval (dense + sparse) for entity-rich queries
+    \item Hierarchical indexing for aggregation tasks
+    \item User feedback loops to refine relevance judgments
+    \item Continuous evaluation as corpus evolves
+\end{itemize}
+
+Overall, this RAG system demonstrates the viability of retrieval-augmented generation for domain-specific question answering, achieving strong performance with minimal computational overhead.
+
+
+\bibliographystyle{plain}
+\begin{thebibliography}{9}
+
+\bibitem{lewis2020}
+Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., ... \& Kiela, D. (2020). 
+Retrieval-augmented generation for knowledge-intensive nlp tasks. 
+\textit{Advances in Neural Information Processing Systems}, 33, 9459-9474.
+
+\bibitem{karpukhin2020}
+Karpukhin, V., O\u{g}uz, B., Min, S., Lewis, P., Wu, L., Edunov, S., ... \& Yih, W. T. (2020). 
+Dense passage retrieval for open-domain question answering. 
+\textit{arXiv preprint arXiv:2004.04906}.
+
+\bibitem{es2024}
+Es, S., James, J., Espinosa-Anke, L., \& Schockaert, S. (2024). 
+RAGAS: Automated evaluation of retrieval augmented generation. 
+\textit{arXiv preprint arXiv:2309.15217}.
+
+\bibitem{reimers2019}
+Reimers, N., \& Gurevych, I. (2019). 
+Sentence-BERT: Sentence embeddings using Siamese BERT-networks. 
+\textit{arXiv preprint arXiv:1908.10084}.
+
+\bibitem{johnson2019}
+Johnson, J., Douze, M., \& Jégou, H. (2019). 
+Billion-scale similarity search with GPUs. 
+\textit{IEEE Transactions on Big Data}, 7(3), 535-547.
+
+\section{Appendix: Sample Queries and Outputs}
+\label{appendix:samples}
+
+This appendix contains the complete set of test queries used in our evaluation.
+
+\subsection{Test Query 1: Factual Detail}
+\textbf{Query}: "How many ECTS is Internet of Things?"
+
+\textit{With RAG}: "The Internet of Things course is worth 6 ECTS credits."
+
+\textit{Without RAG}: "The 'Internet of Things' course in the University of Antwerp's Computer Science Master's program is typically worth 6 ECTS credits. However, it's always a good idea to check the most current course catalog..."
+
+\textit{Result}: Both correct, but RAG is more confident and direct.
+
+\subsection{Test Query 2: Missing Information}
+\textbf{Query}: "What programming languages do I need for IoT?"
+
+\textit{With RAG}: "I don't have enough information in the provided context to answer this question."
+
+\textit{Without RAG}: "For the Internet of Things (IoT), several programming languages are commonly used: C/C++, Python, Java, JavaScript, Rust, Lua, Go, Swift..."
+
+\textit{Result}: RAG correctly refuses (though information was in dataset but not retrieved). Baseline provides generic answer.
+
+\subsection{Test Query 3: Policy Question}
+\textbf{Query}: "Can I use AI tools in my Master thesis?"
+
+\textit{With RAG}: "Yes, you can use generative AI tools in your Master thesis. You may use them for writing the thesis, similar to using search engines like Google, and for checking grammar and spelling. However, it must be clearly indicated which code was created by which tools, and during the thesis defence, you may be asked to elaborate on how you used generative AI."
+
+\textit{Without RAG}: "The use of AI tools in your Master thesis at the University of Antwerp generally depends on the guidelines set by the university and your specific department. Ensure compliance with academic integrity policies..."
+
+\textit{Result}: RAG provides specific UAntwerp policy. Baseline gives generic advice.
+
+\subsection{Test Query 4: Multi-Part Query}
+\textbf{Query}: "Who teaches Internet of Things and what semester is it in?"
+
+\textit{With RAG}: "The course 'Internet of Things' is taught by Miguel Camelo and is offered in the 2nd semester (2E SEM)."
+
+\textit{Without RAG}: "The course 'Internet of Things' in the University of Antwerp's Computer Science Master's program is taught by Peter Hellinckx. It is offered in the first semester."
+
+\textit{Result}: RAG 100\% correct. Baseline hallucinated both facts (wrong teacher, wrong semester).
+
+\end{thebibliography}
+
+\end{document}
