@@ -49,7 +49,7 @@ We use the provided dataset:
 - `cs-data/course-pages.json` — course pages
 - `cs-data/website-scraped.json` — scraped programme pages
 
-After chunking we obtain around 500 passages, which exceeds the required 150–200.
+After chunking we obtain 588 passages, which exceeds the required 150–200.
 
 ---
 
